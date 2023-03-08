@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Personal Combined Stats</title>
+	<script src="stats.js"></script>
+	<link rel="icon" href="countsnoo.png">
+	<link rel="stylesheet" href="stats.css">
+</head>
+<body onload="clearText()">
+	<main>
+		<h1>Personal Combined Stats</h1>
+		<form id="input" onsubmit="getStats(); return false">
+			<label>Enter Reddit username here (without /u/):</label>
+			<input type="text" id="username" autocomplete="nickname">
+			<input type="submit" value="Get stats!" form="input">
+		</form>
+		<div id="stats">
+			<div>
+				<h2 id="hoc_title"></h2>
+				<table>
+					<thead>
+						<tr>
+							<th>Thread</th>
+							<th>Counts</th>
+							<th>Rank</th>
+						</tr>
+					</thead>
+					<tbody id="hoc">
+					</tbody>
+				</table>
+				<span id="counts" class="total"></span>
+				<span id="threads" class="total"></span>
+			</div>
+			<div>
+				<h2 id="hof_title"></h2>
+				<table>
+					<thead>
+						<tr>
+							<th>Thread</th>
+							<th>Gets</th>
+							<th>Assists</th>
+							<th>Combined</th>
+						</tr>
+					</thead>
+					<tbody id="hof">
+					</tbody>
+				</table>
+				<span id="gets" class="total"></span>
+				<span id="assists" class="total"></span>
+			</div>
+		</div>
+		<h2 id="none">No counts found for this user!</h3>
+		<p>
+			This tool collects stats from every thread on <a href="https://www.reddit.com/r/counting/">/r/counting</a> into one table for a given user.
+			It scrapes data from the <a href="https://www.reddit.com/r/counting/wiki/hoc">main HoC</a>, <a href="https://www.reddit.com/r/counting/wiki/participation">HoF/Ho999</a>,
+			and the additional <a href="https://www.reddit.com/r/counting/wiki/side_stats">sidethread stats pages</a>.
+		</p>
+		<p>
+			If you use an extension like <a href="https://privacybadger.org/">Privacy Badger</a>, you may have to disable it for this site, sorry. 
+			Privacy Badger blocks cross-domain requests, which are required by this tool in order to access Reddit's API.
+		</p>
+			This webpage was made by <a href="https://www.reddit.com/user/TehVulpez">Vulpez</a>. Send me a PM on Reddit if you have any problems or questions!
+		</p>
+		<noscript>You must enable JavaScript to use this tool.</noscript>
+	</main>
+</body>
+</html>
