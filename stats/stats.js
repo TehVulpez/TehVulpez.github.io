@@ -12,11 +12,14 @@ function updateTable(stats) {
 		let row = document.createElement("tr");
 		counts += stats.hoc[i].counts;
 		threads += 1;
-		row.innerHTML = "<td>"+stats.hoc[i].title+"</td><td>"+stats.hoc[i].counts+"</td><td>"+stats.hoc[i].rank+"</td>";
+		row.innerHTML = "<td>" + 
+			stats.hoc[i].title + "</td><td>" + 
+			stats.hoc[i].counts.toLocaleString() + "</td><td>" + 
+			stats.hoc[i].rank + "</td>";
 		hoc.appendChild(row);
 	}
-	document.getElementById("counts").textContent = "Total counts: "+counts;
-	document.getElementById("threads").textContent = "Total threads: "+threads;
+	document.getElementById("counts").textContent = "Total counts: " + counts.toLocaleString();
+	document.getElementById("threads").textContent = "Total threads: " + threads;
 	
 	stats.hof.sort((a, b) => a.title > b.title ? 1 : -1); // alphabetical
 	stats.hof.sort((a, b) => b.gets - a.gets); // by gets
@@ -30,20 +33,24 @@ function updateTable(stats) {
 		gets += stats.hof[i].gets;
 		assists += stats.hof[i].assists;
 		let combined = stats.hof[i].gets + stats.hof[i].assists;
-		row.innerHTML = 
-			"<td>"+stats.hof[i].title+"</td><td>" + 
-			(stats.hof[i].gets?stats.hof[i].gets:" ") + "</td><td>" + 
-			(stats.hof[i].assists?stats.hof[i].assists:" ") + "</td><td>" + 
+		row.innerHTML = "<td>" + 
+			stats.hof[i].title + "</td><td>" + 
+			(stats.hof[i].gets ? stats.hof[i].gets : " ") + "</td><td>" + 
+			(stats.hof[i].assists ? stats.hof[i].assists : " ") + "</td><td>" + 
 			combined + "</td>"; // only put number in cell if it's not zero
 		hof.appendChild(row);
 	}
-	document.getElementById("gets").textContent = "Total gets: "+gets;
-	document.getElementById("assists").textContent = "Total assists: "+assists;
+	document.getElementById("gets").textContent = "Total gets: " + gets.toLocaleString();
+	document.getElementById("assists").textContent = "Total assists: " + assists.toLocaleString();
 	
-	if (counts > 0)
+	if (counts > 0) {
 		document.getElementById("none").style.display = "none";
-	else
+		document.getElementById("stats").style.display = "flex";
+	}
+	else {
 		document.getElementById("none").style.display = "block";
+		document.getElementById("stats").style.display = "none";
+	}
 }
 
 function getTables(html) {
@@ -73,7 +80,7 @@ function addThread(username, title, html, stats) {
 		
 		if ((getRow = hofRows.findIndex(row => row.cells[1].textContent.toLowerCase() == username)) > -1) { // gets
 			const getCell = hofRows[getRow].cells[2];
-			gets = getCell.textContent ? parseInt(getCell.textContent) : 1;
+			gets = getCell.textContent ? parseInt(getCell.textContent) : 1; // set to 1 if it's empty
 		}
 		if ((assistRow = hofRows.findIndex(row => row.cells[3].textContent.toLowerCase() == username)) > -1) { // assists
 			const assistCell = hofRows[assistRow].cells[4];
@@ -116,12 +123,12 @@ function mainHoF(username, html, stats) {
 }
 
 function getStats() {
-	const username = document.getElementById("username").value.replace(/\s/g, "");
+	const username = document.getElementById("username").value.replace(/\s/g, ""); // remove whitespace
 	if (username) {
 		let stats = {hoc:[], hof:[]};
 		document.getElementById("hoc_title").textContent = "HoC for "+username;
 		document.getElementById("hof_title").textContent = "HoF/Ho999 for "+username;
-		document.getElementById("stats").style.display = "block";
+		document.getElementById("stats").style.display = "flex";
 		
 		// Main thread HoC
 		fetch("https://old.reddit.com/r/counting/wiki/hoc.json?raw_json=1", {mode:"cors", cache:"force-cache"})
