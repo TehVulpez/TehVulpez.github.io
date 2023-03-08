@@ -17,7 +17,7 @@ table {
 }
 thead {
 	font-weight: bold;
-	background-color: #dde;
+	background-color: #cce;
 }
 tbody {
 	background-color: #eef;
@@ -43,4 +43,11 @@ h1, h2 {
 }
 #none {
 	display: none;
+}
+#input {
+	display: flex;
+	justify-content: center;
+}
+#input * {
+	margin: 4px;
 }
