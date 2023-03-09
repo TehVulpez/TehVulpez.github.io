@@ -11,15 +11,16 @@
 <body onload="clearText()">
 	<main>
 		<h1>Personal Combined Stats</h1>
-		<div class="container">
-			<form id="input" onsubmit="getStats(); return false">
-				<label>Enter Reddit username here (without /u/):</label>
-				<div class="container">
-					<input type="text" id="username" autocomplete="nickname">
-					<input type="submit" value="Get stats!" form="input">
-				</div>
-			</form>
-		</div>
+		<form id="input" onsubmit="getStats(); return false">
+			<label>
+				<span>Enter Reddit username here</span>
+				<span>(without /u/):</span>
+			</label>
+			<div class="container">
+				<input type="text" id="username" autocomplete="nickname">
+				<input type="submit" value="Get stats!" form="input">
+			</div>
+		</form>
 		<div id="stats">
 			<div>
 				<h2 id="hoc_title"></h2>
