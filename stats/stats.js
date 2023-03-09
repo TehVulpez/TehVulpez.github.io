@@ -47,10 +47,6 @@ function updateTable(stats) {
 		document.getElementById("none").style.display = "none";
 		document.getElementById("stats").style.display = "flex";
 	}
-	else {
-		document.getElementById("none").style.display = "block";
-		document.getElementById("stats").style.display = "none";
-	}
 }
 
 function getTables(html) {
@@ -60,16 +56,6 @@ function getTables(html) {
 
 function addThread(username, title, html, stats) {
 	const tables = getTables(html);
-	const hoc = tables[tables.length-1]; // get last table on the page
-	const hocRows = Array.from(hoc.rows);
-	let row;
-	
-	if ((row = hocRows.findIndex(row => row.cells[1].textContent.toLowerCase() == username)) > -1) { // HoC
-		const rank = parseInt(hocRows[row].cells[0].textContent);
-		const counts = parseInt(hocRows[row].cells[2].textContent);
-		
-		stats.hoc.push({"title":title, "rank":rank, "counts":counts});
-	}
 	
 	if (tables.length > 1) { // only for sidethreads
 		const hof = tables[0];
@@ -90,7 +76,17 @@ function addThread(username, title, html, stats) {
 			stats.hof.push({"title":title, "gets":gets, "assists":assists});
 	}
 	
-	updateTable(stats);
+	const hoc = tables[tables.length-1]; // get last table on the page
+	const hocRows = Array.from(hoc.rows);
+	let row;
+	
+	if ((row = hocRows.findIndex(row => row.cells[1].textContent.toLowerCase() == username)) > -1) { // HoC
+		const rank = parseInt(hocRows[row].cells[0].textContent);
+		const counts = parseInt(hocRows[row].cells[2].textContent);
+		
+		stats.hoc.push({"title":title, "rank":rank, "counts":counts});
+		updateTable(stats);
+	}
 }
 
 function loadSides(username, html, stats) {
@@ -122,13 +118,20 @@ function mainHoF(username, html, stats) {
 	}
 }
 
+function notFound(stats) {
+	if (!document.getElementById("hoc").rows.length)
+		document.getElementById("none").style.display = "block";
+}
+
 function getStats() {
 	const username = document.getElementById("username").value.replace(/\s/g, ""); // remove whitespace
 	if (username) {
 		let stats = {hoc:[], hof:[]};
+		updateTable(stats);
 		document.getElementById("hoc_title").textContent = "HoC for "+username;
 		document.getElementById("hof_title").textContent = "HoF/Ho999 for "+username;
-		document.getElementById("stats").style.display = "flex";
+		document.getElementById("stats").style.display = "none";
+		document.getElementById("none").style.display = "none";
 		
 		// Main thread HoC
 		fetch("https://old.reddit.com/r/counting/wiki/hoc.json?raw_json=1", {mode:"cors", cache:"force-cache"})
@@ -143,6 +146,8 @@ function getStats() {
 		fetch("https://old.reddit.com/r/counting/wiki/side_stats.json?raw_json=1", {mode:"cors", cache:"force-cache"})
 			.then(r => r.json())
 			.then(json => loadSides(username.toLowerCase(), json.data.content_html, stats));
+		
+		window.setTimeout(notFound, 5000);
 	}
 }
 
