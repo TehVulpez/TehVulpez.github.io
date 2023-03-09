@@ -147,7 +147,7 @@ function getStats() {
 			.then(r => r.json())
 			.then(json => loadSides(username.toLowerCase(), json.data.content_html, stats));
 		
-		window.setTimeout(notFound, 5000);
+		window.setTimeout(notFound, 3000);
 	}
 }
 
