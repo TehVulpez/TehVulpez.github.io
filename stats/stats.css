@@ -1,6 +1,6 @@
 body {
 	background-image: url(tilingrc2.png);
-	font-family: Helvetica, sans-serif;
+	font-family: Arial, sans-serif;
 	font-size: 18px;
 	display: flex;
 	justify-content: center;
@@ -51,4 +51,11 @@ h1, h2 {
 }
 input {
 	margin: 2px;
+}
+label {
+	display: block;
+	text-align: center;
+}
+label span {
+	display: inline-block;
 }
