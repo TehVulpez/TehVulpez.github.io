@@ -44,10 +44,11 @@ h1, h2 {
 #none {
 	display: none;
 }
-#input {
+.container {
 	display: flex;
+	align-items: center;
 	justify-content: center;
 }
-#input * {
-	margin: 4px;
+input {
+	margin: 2px;
 }
