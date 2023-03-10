@@ -200,7 +200,7 @@ async function getStats() {
 		document.getElementById("stats").style.display = "none";
 		document.getElementById("none").style.display = "none";
 		
-		const aliases = await fetch("https://raw.githubusercontent.com/cutonbuminband/rcounting/main/rcounting/counters/aliases.txt")
+		const aliases = await fetch("aliases.csv")
 			.then(r => r.text())
 			.then(getAliases);
 		
