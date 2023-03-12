@@ -56,7 +56,7 @@ function getTables(html) {
 	return dom.parseFromString(html, "text/html").getElementsByTagName("tbody");
 }
 
-function sideHoF(hof, title, stats, name) {
+function sideHoF(hof, title, name, stats) {
 	const hofRows = Array.from(hof.rows).reverse(); // search starting from latest get
 	let gets = 0;
 	let assists = 0;
@@ -67,7 +67,7 @@ function sideHoF(hof, title, stats, name) {
 		gets = getCell.textContent ? parseInt(getCell.textContent) : 1; // set to 1 if it's empty
 	}
 	
-	const assistRow = hofRows.findIndex(row => row.cells[3].textContent.toLowerCase() == name.toLowerCase())
+	const assistRow = hofRows.findIndex(row => row.cells[3].textContent.toLowerCase() == name.toLowerCase());
 	if (assistRow > -1) { // assists
 		const assistCell = hofRows[assistRow].cells[4];
 		assists = assistCell.textContent ? parseInt(assistCell.textContent) : 1;
@@ -82,7 +82,7 @@ function sideHoF(hof, title, stats, name) {
 		stats.hof.push({"title":title, "gets":gets, "assists":assists});
 }
 
-function getHoC(hoc, title, stats, name) {
+function getHoC(hoc, title, name, stats) {
 	const hocRows = Array.from(hoc.rows);
 	
 	const row = hocRows.findIndex(row => row.cells[1].textContent.toLowerCase() == name.toLowerCase());
@@ -90,14 +90,19 @@ function getHoC(hoc, title, stats, name) {
 		const rank = parseInt(hocRows[row].cells[0].textContent);
 		const counts = parseInt(hocRows[row].cells[2].textContent);
 		
-		if (stats.username.toLowerCase() == name.toLowerCase()) // only for original name, not aliases
+		if (stats.username.toLowerCase() == name.toLowerCase()) // only for original input, not aliases
 			stats.username = hocRows[row].cells[1].textContent; // change to proper capitalization
 		
 		const stat = stats.hoc.findIndex(stat => stat.title == title);
-		if (stat > -1)
-			stats.hoc[stat].counts += counts; // add to existing record, in case counts already found under another name
+		if (stat > -1) {
+			stats.hoc[stat].counts += counts; // add to existing record if counts already found under another name
+			for (let i = row-1; i >= 0 && parseInt(hocRows[i].cells[2].textContent) < stats.hoc[stat].counts; i--) {
+				stats.hoc[stat].rank = parseInt(hocRows[i].cells[0].textContent); // adjust rank
+			}
+		}
 		else
 			stats.hoc.push({"title":title, "rank":rank, "counts":counts});
+		
 		updateTable(stats);
 	}
 }
@@ -105,11 +110,11 @@ function getHoC(hoc, title, stats, name) {
 function addThread(tables, title, name, stats) {
 	if (tables.length > 1) { // only for sidethreads
 		const hof = tables[0];
-		sideHoF(hof, title, stats, name);
+		sideHoF(hof, title, name, stats);
 	}
 	
 	const hoc = tables[tables.length-1];
-	getHoC(hoc, title, stats, name);
+	getHoC(hoc, title, name, stats);
 }
 
 function loadThread(title, html, stats, aliases) {
@@ -122,9 +127,8 @@ function loadThread(title, html, stats, aliases) {
 			addThread(tables, title, name, stats);
 		}
 	}
-	else {
-		addThread(tables, title, stats.username, stats);
-	}
+	else
+		addThread(tables, title, user, stats);
 }
 
 function loadSides(html, stats, aliases) {
@@ -134,7 +138,7 @@ function loadSides(html, stats, aliases) {
 		for (let y = 0; y < tbody.rows.length; y++) {
 			const row = tbody.rows[y];
 			const title = row.cells[0].textContent;
-			const url = row.cells[0].childNodes[0].getAttribute('href');
+			const url = row.cells[0].childNodes[0].getAttribute("href");
 			fetch("https://old.reddit.com"+url+".json?raw_json=1", {mode:"cors", cache:"force-cache"}) // load stats page for each thread
 				.then(r => r.json())
 				.then(json => loadThread(title, json.data.content_html, stats, aliases));
@@ -155,6 +159,7 @@ function mainHoF(rows, name, stats) {
 		}
 		else if (gets || assists)
 			stats.hof.push({title:"Decimal", "gets": gets, "assists":assists});
+		
 		updateTable(stats);
 	}
 }
