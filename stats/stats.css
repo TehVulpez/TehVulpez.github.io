@@ -56,9 +56,6 @@ label {
 	display: block;
 	text-align: center;
 }
-label span {
-	display: inline-block;
-}
 .title::after {
 	content: ":";
 }

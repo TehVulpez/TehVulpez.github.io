@@ -198,7 +198,7 @@ function getAliases(csv) {
 }
 
 async function getStats() {
-	const username = document.getElementById("username").value.replace(/\s/g, ""); // remove whitespace
+	const username = document.getElementById("username").value.replace(/\/?u\/|\s/g, ""); // remove whitespace, /u/
 	if (username) {
 		let stats = {hoc:[], hof:[], "username":username};
 		updateTable(stats);
