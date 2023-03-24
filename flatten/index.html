@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Thread Flattener</title>
+	<link rel="icon" href="noise.png">
+	<link rel="stylesheet" href="flatten.css">
+	<script src="flatten.js"></script>
+</head>
+<body>
+	<h1>Pushshift thread comments</h1>
+	<form id="input" onsubmit="loadNew(); return false" class="flex container col">
+		<div class="flex container">
+			<div class="flex container col">
+				<label>Insert reddit thread link here:</label>
+				<input type="text" id="link" placeholder="Insert reddit thread link here">
+			</div>
+			<div class="flex container col">
+				<label>Amount of comments to load:</label>
+				<input type="number" min="10" max="1000" value="100" step="10" id="limit">
+			</div>
+		</div>
+		<button type="submit" form="input">Load thread</button>
+	</form>
+	<div class="flex container col">
+		<div id="comments" class="flex container col">
+		</div>
+		<button style="display:none" id="more" onclick="loadMore()">More comments</button>
+	</div>
+</body>
+</html>

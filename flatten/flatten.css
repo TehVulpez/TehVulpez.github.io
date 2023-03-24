@@ -1,0 +1,44 @@
+body {
+	font-family: sans-serif;
+}
+a {
+	text-decoration: none;
+}
+.body {
+	color: black;
+}
+#comments {
+	width: 100%;
+}
+.flex {
+	display: flex;
+	gap: 4px;
+	margin: 4px;
+}
+.head time {
+	margin-left: auto;
+}
+.col {
+	flex-direction: column;
+}
+.container {
+	max-width: 64rem;
+	margin-left: auto;
+	margin-right: auto;
+	width: 100%;
+}
+.comment {
+	background-color: #eee;
+	padding: 4px;
+}
+button {
+	padding-top: .5rem;
+	padding-bottom: .5rem;
+	font-weight: bold;
+}
+h1 {
+	text-align: center;
+}
+form.container {
+	max-width: 48rem;
+}
