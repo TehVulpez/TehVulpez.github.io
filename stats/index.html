@@ -12,12 +12,9 @@
 	<main>
 		<h1>Personal Combined Stats</h1>
 		<form id="input" onsubmit="getStats(); return false">
-			<label>
-				<span>Enter Reddit username here</span>
-				<span>(without /u/):</span>
-			</label>
+			<label>Enter Reddit username here:</label>
 			<div class="container">
-				<input type="text" id="username" autocomplete="nickname">
+				<input type="text" id="username" autocomplete="nickname" autofocus>
 				<input type="submit" value="Get stats!" form="input">
 			</div>
 		</form>
@@ -66,6 +63,7 @@
 			If you use an extension like <a href="https://privacybadger.org/">Privacy Badger</a>, you may have to disable it for this site, sorry. 
 			Privacy Badger blocks cross-domain requests, which are required by this tool in order to access Reddit's API.
 		</p>
+		<p>
 			This webpage was made by <a href="https://www.reddit.com/user/TehVulpez">Vulpez</a>. Send me a PM on Reddit if you have any problems or questions!
 		</p>
 		<noscript>You must enable JavaScript to use this tool.</noscript>
