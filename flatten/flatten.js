@@ -35,6 +35,8 @@ function loadNew() {
 function loadPushshift(utc) {
 	const link = document.getElementById("link").value.replace(/\s/g, "");
 	const limit = document.getElementById("limit").value;
+	const author = document.getElementById("author").value.replace(/\/?u\/|\s/g, "");
+	const search = document.getElementById("search").value;
 	
 	if (link) {
 		const url = new URL(fixURL(link));
@@ -53,7 +55,7 @@ function loadPushshift(utc) {
 		else
 			id = parseInt(link, 36);
 		
-		fetch("https://api.pushshift.io/reddit/comment/search?link_id="+id+"&limit="+limit+"&before="+utc)
+		fetch("https://api.pushshift.io/reddit/comment/search?link_id="+id+"&limit="+limit+"&before="+utc+"&author="+author+"&q="+search)
 			.then(r => r.json())
 			.then(readComments);
 	}
