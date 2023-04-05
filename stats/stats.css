@@ -64,6 +64,9 @@ fieldset {
 	border: none;
 	margin: auto;
 }
+fieldset > div {
+	display: inline-block;
+}
 .title::after {
 	content: ":";
 }

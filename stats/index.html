@@ -19,10 +19,14 @@
 			</div>
 			<fieldset>
 				<legend>Show:</legend>
-				<input type="radio" id="show-rank" value="show-rank" name="input" checked onchange="switchType()">
-				<label for="show-rank">Rank in thread</label>
-				<input type="radio" id="show-thread-percent" value="show-thread-percent" name="input" onchange="switchType()">
-				<label for="show-thread-percent">Percent of thread</label>
+				<div>
+					<input type="radio" id="show-rank" value="show-rank" name="input" checked onchange="switchType()">
+					<label for="show-rank">Rank in thread</label>
+				</div>
+				<div>
+					<input type="radio" id="show-thread-percent" value="show-thread-percent" name="input" onchange="switchType()">
+					<label for="show-thread-percent">Percent of thread</label>
+				</div>
 			</fieldset>
 		</form>
 		<div id="stats">
