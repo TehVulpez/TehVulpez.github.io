@@ -7,15 +7,16 @@ function updateTable(stats) {
 	let hoc = document.getElementById("hoc");
 	hoc.innerHTML = "";
 	let counts = 0;
+	stats.hoc.map(stat => counts += stat.counts);
 	let threads = 0;
 	for (let i in stats.hoc) {
 		let row = document.createElement("tr");
-		counts += stats.hoc[i].counts;
 		threads += 1;
 		row.innerHTML = "<td>" + 
 			stats.hoc[i].title + "</td><td>" + 
 			stats.hoc[i].counts.toLocaleString() + "</td><td>" + 
-			stats.hoc[i].rank + "</td>";
+			stats.hoc[i].rank + "</td><td>" + 
+			(stats.hoc[i].counts / counts * 100).toFixed(3) + "%</td>";
 		hoc.appendChild(row);
 	}
 	document.getElementById("counts").textContent = "Total counts: " + counts.toLocaleString();
