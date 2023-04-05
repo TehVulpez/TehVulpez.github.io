@@ -17,6 +17,13 @@
 				<input type="text" id="username" autocomplete="nickname" autofocus>
 				<input type="submit" value="Get stats!" form="input">
 			</div>
+			<fieldset>
+				<legend>Show:</legend>
+				<input type="radio" id="show-rank" value="show-rank" name="input" checked onchange="switchType()">
+				<label for="show-rank">Rank in thread</label>
+				<input type="radio" id="show-thread-percent" value="show-thread-percent" name="input" onchange="switchType()">
+				<label for="show-thread-percent">Percent of thread</label>
+			</fieldset>
 		</form>
 		<div id="stats">
 			<div>
@@ -26,8 +33,9 @@
 						<tr>
 							<th>Thread</th>
 							<th>Counts</th>
-							<th>Rank</th>
-							<th title="Percentage of counts in thread to total counts">Relative</th>
+							<th title="Percentage of counts in thread to total personal counts">Personal %</th>
+							<th title="Percentage of counts in thread to overall thread counts" class="thread-percent">Thread %</td>
+							<th class="rank">Rank</th>
 						</tr>
 					</thead>
 					<tbody id="hoc">

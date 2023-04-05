@@ -1,43 +1,55 @@
 "use strict";
 
 function updateTable(stats) {
+	// HoC
 	stats.hoc.sort((a, b) => a.title > b.title ? 1 : -1); // alphabetical
 	stats.hoc.sort((a, b) => a.rank - b.rank); // by rank
 	stats.hoc.sort((a, b) => b.counts - a.counts); // by counts
+	
 	let hoc = document.getElementById("hoc");
 	hoc.innerHTML = "";
 	let counts = 0;
 	stats.hoc.map(stat => counts += stat.counts);
 	let threads = 0;
-	for (let i in stats.hoc) {
+	
+	const isRank = document.getElementById("show-rank").checked;
+	const isThread = document.getElementById("show-thread-percent").checked;
+	const rankStyle = `display: ${isRank ? "table-cell" : "none"}`;
+	const threadStyle = `display: ${isThread ? "table-cell" : "none"}`;
+	
+	for (let stat of stats.hoc) {
 		let row = document.createElement("tr");
 		threads += 1;
 		row.innerHTML = "<td>" + 
-			stats.hoc[i].title + "</td><td>" + 
-			stats.hoc[i].counts.toLocaleString() + "</td><td>" + 
-			stats.hoc[i].rank + "</td><td>" + 
-			(stats.hoc[i].counts / counts * 100).toFixed(3) + "%</td>";
+			stat.title + "</td><td>" + 
+			stat.counts.toLocaleString() + "</td><td>" + 
+			(stat.counts / counts * 100).toFixed(3) + "%</td>" +
+			`<td class="thread-percent" style="${threadStyle}">` + (stat.counts / stat.total * 100).toFixed(3) + "%</td>" + 
+			`<td class="rank" style="${rankStyle}">` + stat.rank + "</td>";
 		hoc.appendChild(row);
 	}
 	document.getElementById("counts").textContent = "Total counts: " + counts.toLocaleString();
 	document.getElementById("threads").textContent = "Total threads: " + threads;
 	
+	// HoF
 	stats.hof.sort((a, b) => a.title > b.title ? 1 : -1); // alphabetical
 	stats.hof.sort((a, b) => b.gets - a.gets); // by gets
 	stats.hof.sort((a, b) => (b.gets + b.assists) - (a.gets + a.assists)); // by combined
+	
 	let hof = document.getElementById("hof");
 	hof.innerHTML = "";
 	let gets = 0;
 	let assists = 0;
-	for (let i in stats.hof) {
+	
+	for (let stat of stats.hof) {
 		let row = document.createElement("tr");
-		gets += stats.hof[i].gets;
-		assists += stats.hof[i].assists;
-		let combined = stats.hof[i].gets + stats.hof[i].assists;
+		gets += stat.gets;
+		assists += stat.assists;
+		let combined = stat.gets + stat.assists;
 		row.innerHTML = "<td>" + 
-			stats.hof[i].title + "</td><td>" + 
-			(stats.hof[i].gets ? stats.hof[i].gets : " ") + "</td><td>" + 
-			(stats.hof[i].assists ? stats.hof[i].assists : " ") + "</td><td>" + 
+			stat.title + "</td><td>" + 
+			(stat.gets ? stat.gets : " ") + "</td><td>" + 
+			(stat.assists ? stat.assists : " ") + "</td><td>" + 
 			combined + "</td>"; // only put number in cell if it's not zero
 		hof.appendChild(row);
 	}
@@ -90,6 +102,8 @@ function getHoC(hoc, title, name, stats) {
 	if (row > -1) { // HoC
 		const rank = parseInt(hocRows[row].cells[0].textContent);
 		const counts = parseInt(hocRows[row].cells[2].textContent);
+		let total = 0;
+		hocRows.map(r => total += parseInt(r.cells[2].textContent));
 		
 		if (stats.username.toLowerCase() == name.toLowerCase()) // only for original input, not aliases
 			stats.username = hocRows[row].cells[1].textContent; // change to proper capitalization
@@ -102,7 +116,7 @@ function getHoC(hoc, title, name, stats) {
 			}
 		}
 		else
-			stats.hoc.push({"title":title, "rank":rank, "counts":counts});
+			stats.hoc.push({"title":title, "rank":rank, "counts":counts, "total":total});
 		
 		updateTable(stats);
 	}
@@ -123,10 +137,8 @@ function loadThread(title, html, stats, aliases) {
 	const user = stats.username.toLowerCase();
 	
 	if (user in aliases) { // check every alias
-		for (let i in aliases[user]) {
-			const name = aliases[user][i];
+		for (let name of aliases[user])
 			addThread(tables, title, name, stats);
-		}
 	}
 	else
 		addThread(tables, title, user, stats);
@@ -171,10 +183,8 @@ function hallOfParticipation(html, stats, aliases) {
 	const user = stats.username.toLowerCase();
 	
 	if (user in aliases) {
-		for (let i in aliases[user]) {
-			const name = aliases[user][i];
+		for (let name of aliases[user])
 			mainHoF(rows, name, stats);
-		}
 	}
 	else
 		mainHoF(rows, user, stats);
@@ -230,4 +240,19 @@ async function getStats() {
 
 function clearText() {
 	document.getElementById("input").reset();
+}
+
+function switchType() {
+	if (document.getElementById("show-thread-percent").checked) {
+		for (let el of document.getElementsByClassName("thread-percent"))
+			el.style.display = "table-cell";
+		for (let el of document.getElementsByClassName("rank"))
+			el.style.display = "none";
+	}
+	else {
+		for (let el of document.getElementsByClassName("rank"))
+			el.style.display = "table-cell";
+		for (let el of document.getElementsByClassName("thread-percent"))
+			el.style.display = "none";
+	}
 }

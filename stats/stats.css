@@ -52,10 +52,21 @@ h1, h2 {
 input {
 	margin: 2px;
 }
-label {
+form {
+	display: flex;
+	flex-direction: column;
+}
+form > label {
 	display: block;
 	text-align: center;
 }
+fieldset {
+	border: none;
+	margin: auto;
+}
 .title::after {
 	content: ":";
+}
+.thread-percent {
+	display: none;
 }
