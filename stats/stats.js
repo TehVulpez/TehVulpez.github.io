@@ -327,14 +327,18 @@ function sortHoC(el) {
 }
 
 function sortHoF(el) {
-	if (sortedHoF)
+	if (sortedHoF != undefined && sortedHoF === el) {
+		if (el.dataset.sortDirection == "up")
+			el.dataset.sortDirection = "down";
+		else
+			el.dataset.sortDirection = "up";
+	}
+	else if (sortedHoF != undefined && sortedHoF !== el)
 		delete sortedHoF.dataset.sorted;
+	if (el.dataset.sortDirection == undefined)
+		el.dataset.sortDirection = "up";
 	sortedHoF = el;
 	el.dataset.sorted = true;
 	
-	if (el.dataset.sortDirection == "up")
-		el.dataset.sortDirection = "down";
-	else
-		el.dataset.sortDirection = "up";
 	updateTable({hofType: el.dataset.col, hofDirection: el.dataset.sortDirection});
 }
