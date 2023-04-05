@@ -1,16 +1,42 @@
 "use strict";
 
-function updateTable(stats) {
+let stats = {};
+let sortedHoC, sortedHoF;
+
+function updateTable(sort = {}) {
 	// HoC
-	stats.hoc.sort((a, b) => a.title > b.title ? 1 : -1); // alphabetical
-	stats.hoc.sort((a, b) => a.rank - b.rank); // by rank
-	stats.hoc.sort((a, b) => b.counts - a.counts); // by counts
-	
 	let hoc = document.getElementById("hoc");
 	hoc.innerHTML = "";
 	let counts = 0;
 	stats.hoc.map(stat => counts += stat.counts);
 	let threads = 0;
+	
+	if (sort.hocType == undefined && sort.hofType == undefined) {
+		stats.hoc.sort((a, b) => a.title > b.title ? 1 : -1); // alphabetical
+		stats.hoc.sort((a, b) => a.rank - b.rank); // by rank
+		stats.hoc.sort((a, b) => b.counts - a.counts); // by counts
+	}
+	else if (sort.hocType) {
+		switch (sort.hocType) {
+			case "title":
+				stats.hoc.sort((a, b) => a.title > b.title ? 1 : -1);
+				break;
+			case "counts":
+				stats.hoc.sort((a, b) => a.counts - b.counts);
+				break;
+			case "personal-percent":
+				stats.hoc.sort((a, b) => a.counts/counts - b.counts/counts);
+				break;
+			case "thread-percent":
+				stats.hoc.sort((a, b) => a.counts/a.total - b.counts/b.total);
+				break;
+			case "rank":
+				stats.hoc.sort((a, b) => a.rank - b.rank);
+				break;
+		}
+	}
+	if (sort.hocDirection == "down")
+		stats.hoc.reverse();
 	
 	const isRank = document.getElementById("show-rank").checked;
 	const isThread = document.getElementById("show-thread-percent").checked;
@@ -19,22 +45,44 @@ function updateTable(stats) {
 	
 	for (let stat of stats.hoc) {
 		let row = document.createElement("tr");
+		const personalPercent = stat.counts / counts * 100;
+		const threadPercent = stat.counts / stat.total * 100;
 		threads += 1;
 		row.innerHTML = "<td>" + 
 			stat.title + "</td><td>" + 
 			stat.counts.toLocaleString() + "</td><td>" + 
-			(stat.counts / counts * 100).toFixed(3) + "%</td>" +
-			`<td class="thread-percent" style="${threadStyle}">` + (stat.counts / stat.total * 100).toFixed(3) + "%</td>" + 
+			personalPercent.toFixed(3) + "%</td>" +
+			`<td class="thread-percent" style="${threadStyle}">` + threadPercent.toFixed(3) + "%</td>" + 
 			`<td class="rank" style="${rankStyle}">` + stat.rank + "</td>";
 		hoc.appendChild(row);
 	}
 	document.getElementById("counts").textContent = "Total counts: " + counts.toLocaleString();
-	document.getElementById("threads").textContent = "Total threads: " + threads;
+	document.getElementById("threads").textContent = "Total threads: " + threads.toLocaleString();
 	
 	// HoF
-	stats.hof.sort((a, b) => a.title > b.title ? 1 : -1); // alphabetical
-	stats.hof.sort((a, b) => b.gets - a.gets); // by gets
-	stats.hof.sort((a, b) => (b.gets + b.assists) - (a.gets + a.assists)); // by combined
+	if (sort.hocType == undefined && sort.hofType == undefined) {
+		stats.hof.sort((a, b) => a.title > b.title ? 1 : -1); // alphabetical
+		stats.hof.sort((a, b) => b.gets - a.gets); // by gets
+		stats.hof.sort((a, b) => (b.gets + b.assists) - (a.gets + a.assists)); // by combined
+	}
+	else if (sort.hofType) {
+		switch (sort.hofType) {
+			case "title":
+				stats.hof.sort((a, b) => a.title > b.title ? 1 : -1);
+				break;
+			case "gets":
+				stats.hof.sort((a, b) => a.gets - b.gets);
+				break;
+			case "assists":
+				stats.hof.sort((a, b) => a.assists - b.assists);
+				break;
+			case "combined":
+				stats.hof.sort((a, b) => (a.gets + a.assists) - (b.gets + b.assists));
+				break;
+		}
+	}
+	if (sort.hofDirection == "down")
+		stats.hof.reverse();
 	
 	let hof = document.getElementById("hof");
 	hof.innerHTML = "";
@@ -69,7 +117,7 @@ function getTables(html) {
 	return dom.parseFromString(html, "text/html").getElementsByTagName("tbody");
 }
 
-function sideHoF(hof, title, name, stats) {
+function sideHoF(hof, title, name) {
 	const hofRows = Array.from(hof.rows).reverse(); // search starting from latest get
 	let gets = 0;
 	let assists = 0;
@@ -95,7 +143,7 @@ function sideHoF(hof, title, name, stats) {
 		stats.hof.push({"title":title, "gets":gets, "assists":assists});
 }
 
-function getHoC(hoc, title, name, stats) {
+function getHoC(hoc, title, name) {
 	const hocRows = Array.from(hoc.rows);
 	
 	const row = hocRows.findIndex(row => row.cells[1].textContent.toLowerCase() == name.toLowerCase());
@@ -118,33 +166,33 @@ function getHoC(hoc, title, name, stats) {
 		else
 			stats.hoc.push({"title":title, "rank":rank, "counts":counts, "total":total});
 		
-		updateTable(stats);
+		updateTable();
 	}
 }
 
-function addThread(tables, title, name, stats) {
+function addThread(tables, title, name) {
 	if (tables.length > 1) { // only for sidethreads
 		const hof = tables[0];
-		sideHoF(hof, title, name, stats);
+		sideHoF(hof, title, name);
 	}
 	
 	const hoc = tables[tables.length-1];
-	getHoC(hoc, title, name, stats);
+	getHoC(hoc, title, name);
 }
 
-function loadThread(title, html, stats, aliases) {
+function loadThread(title, html, aliases) {
 	const tables = getTables(html);
 	const user = stats.username.toLowerCase();
 	
 	if (user in aliases) { // check every alias
 		for (let name of aliases[user])
-			addThread(tables, title, name, stats);
+			addThread(tables, title, name);
 	}
 	else
-		addThread(tables, title, user, stats);
+		addThread(tables, title, user);
 }
 
-function loadSides(html, stats, aliases) {
+function loadSides(html, aliases) {
 	const tables = getTables(html);
 	for (let x = 0; x < tables.length; x++) { // there are several tables in the side thread stats page
 		const tbody = tables[x];
@@ -154,12 +202,12 @@ function loadSides(html, stats, aliases) {
 			const url = row.cells[0].childNodes[0].getAttribute("href");
 			fetch("https://old.reddit.com"+url+".json?raw_json=1", {mode:"cors", cache:"force-cache"}) // load stats page for each thread
 				.then(r => r.json())
-				.then(json => loadThread(title, json.data.content_html, stats, aliases));
+				.then(json => loadThread(title, json.data.content_html, aliases));
 		}
 	}
 }
 
-function mainHoF(rows, name, stats) {
+function mainHoF(rows, name) {
 	const row = rows.findIndex(row => row.cells[1].textContent.toLowerCase() == name.toLowerCase());
 	if (row > -1) {
 		const gets = parseInt(rows[row].cells[2].textContent);
@@ -173,11 +221,11 @@ function mainHoF(rows, name, stats) {
 		else if (gets || assists)
 			stats.hof.push({title:"Decimal", "gets": gets, "assists":assists});
 		
-		updateTable(stats);
+		updateTable();
 	}
 }
 
-function hallOfParticipation(html, stats, aliases) {
+function hallOfParticipation(html, aliases) {
 	const hof = getTables(html)[0];
 	const rows = Array.from(hof.rows);
 	const user = stats.username.toLowerCase();
@@ -190,7 +238,7 @@ function hallOfParticipation(html, stats, aliases) {
 		mainHoF(rows, user, stats);
 }
 
-function notFound(stats) {
+function notFound() {
 	if (!document.getElementById("hoc").rows.length)
 		document.getElementById("none").style.display = "block";
 }
@@ -211,8 +259,8 @@ function getAliases(csv) {
 async function getStats() {
 	const username = document.getElementById("username").value.replace(/\/?u\/|\s/g, ""); // remove whitespace, /u/
 	if (username) {
-		let stats = {hoc:[], hof:[], "username":username};
-		updateTable(stats);
+		stats = {hoc:[], hof:[], "username":username};
+		updateTable();
 		document.getElementById("stats").style.display = "none";
 		document.getElementById("none").style.display = "none";
 		
@@ -223,16 +271,16 @@ async function getStats() {
 		// Main thread HoC
 		fetch("https://old.reddit.com/r/counting/wiki/hoc.json?raw_json=1", {mode:"cors", cache:"force-cache"})
 			.then(r => r.json())
-			.then(json => loadThread("Decimal", json.data.content_html, stats, aliases));
+			.then(json => loadThread("Decimal", json.data.content_html, aliases));
 		// Main thread HoF
 		fetch("https://old.reddit.com/r/counting/wiki/participation.json?raw_json=1", {mode:"cors", cache:"force-cache"})
 			.then(r => r.json())
-			.then(json => hallOfParticipation(json.data.content_html, stats, aliases));
+			.then(json => hallOfParticipation(json.data.content_html, aliases));
 		
 		// Sidethreads
 		fetch("https://old.reddit.com/r/counting/wiki/side_stats.json?raw_json=1", {mode:"cors", cache:"force-cache"})
 			.then(r => r.json())
-			.then(json => loadSides(json.data.content_html, stats, aliases));
+			.then(json => loadSides(json.data.content_html, aliases));
 		
 		window.setTimeout(notFound, 3000);
 	}
@@ -255,4 +303,30 @@ function switchType() {
 		for (let el of document.getElementsByClassName("thread-percent"))
 			el.style.display = "none";
 	}
+}
+
+function sortHoC(el) {
+	if (sortedHoC)
+		delete sortedHoC.dataset.sorted;
+	sortedHoC = el;
+	el.dataset.sorted = true;
+	
+	if (el.dataset.sortDirection == "up")
+		el.dataset.sortDirection = "down";
+	else
+		el.dataset.sortDirection = "up";
+	updateTable({hocType: el.dataset.col, hocDirection: el.dataset.sortDirection});
+}
+
+function sortHoF(el) {
+	if (sortedHoF)
+		delete sortedHoF.dataset.sorted;
+	sortedHoF = el;
+	el.dataset.sorted = true;
+	
+	if (el.dataset.sortDirection == "up")
+		el.dataset.sortDirection = "down";
+	else
+		el.dataset.sortDirection = "up";
+	updateTable({hofType: el.dataset.col, hofDirection: el.dataset.sortDirection});
 }

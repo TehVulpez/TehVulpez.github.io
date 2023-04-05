@@ -35,11 +35,11 @@
 				<table>
 					<thead>
 						<tr>
-							<th>Thread</th>
-							<th>Counts</th>
-							<th title="Percentage of counts in thread to total personal counts">Personal %</th>
-							<th title="Percentage of counts in thread to overall thread counts" class="thread-percent">Thread %</td>
-							<th class="rank">Rank</th>
+							<th onclick="sortHoC(this)" data-col="title">Thread</th>
+							<th onclick="sortHoC(this)" data-col="counts">Counts</th>
+							<th onclick="sortHoC(this)" title="Percentage of counts in thread to total personal counts" data-col="personal-percent">Personal %</th>
+							<th onclick="sortHoC(this)" title="Percentage of counts in thread to overall thread counts" class="thread-percent" data-col="thread-percent">Thread %</td>
+							<th onclick="sortHoC(this)" class="rank" data-col="rank">Rank</th>
 						</tr>
 					</thead>
 					<tbody id="hoc">
@@ -53,10 +53,10 @@
 				<table>
 					<thead>
 						<tr>
-							<th>Thread</th>
-							<th>Gets</th>
-							<th>Assists</th>
-							<th>Combined</th>
+							<th onclick="sortHoF(this)" data-col="title">Thread</th>
+							<th onclick="sortHoF(this)" data-col="gets">Gets</th>
+							<th onclick="sortHoF(this)" data-col="assists">Assists</th>
+							<th onclick="sortHoF(this)" data-col="combined">Combined</th>
 						</tr>
 					</thead>
 					<tbody id="hof">

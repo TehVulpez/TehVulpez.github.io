@@ -26,6 +26,9 @@ td, th {
 	border: 1px solid #337;
 	padding: 4px;
 }
+th {
+	cursor: pointer;
+}
 #stats {
 	display: none;
 	justify-content: center;
@@ -72,4 +75,10 @@ fieldset > div {
 }
 .thread-percent {
 	display: none;
+}
+th[data-sorted="true"][data-sort-direction="up"]::after {
+	content: " ▵";
+}
+th[data-sorted="true"][data-sort-direction="down"]::after {
+	content: " ▿"
 }
