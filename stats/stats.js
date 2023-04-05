@@ -1,6 +1,6 @@
 "use strict";
 
-let stats = {};
+let stats, username;
 let sortedHoC, sortedHoF;
 
 function updateTable(sort = {}) {
@@ -12,6 +12,8 @@ function updateTable(sort = {}) {
 	let threads = 0;
 	
 	if (sort.hocType == undefined && sort.hofType == undefined) {
+		if (sortedHoC)
+			delete sortedHoC.dataset.sorted;
 		stats.hoc.sort((a, b) => a.title > b.title ? 1 : -1); // alphabetical
 		stats.hoc.sort((a, b) => a.rank - b.rank); // by rank
 		stats.hoc.sort((a, b) => b.counts - a.counts); // by counts
@@ -61,6 +63,8 @@ function updateTable(sort = {}) {
 	
 	// HoF
 	if (sort.hocType == undefined && sort.hofType == undefined) {
+		if (sortedHoF)
+			delete sortedHoF.dataset.sorted;
 		stats.hof.sort((a, b) => a.title > b.title ? 1 : -1); // alphabetical
 		stats.hof.sort((a, b) => b.gets - a.gets); // by gets
 		stats.hof.sort((a, b) => (b.gets + b.assists) - (a.gets + a.assists)); // by combined
@@ -108,8 +112,8 @@ function updateTable(sort = {}) {
 		document.getElementById("none").style.display = "none";
 		document.getElementById("stats").style.display = "flex";
 	}
-	document.getElementById("hoc_title").textContent = "HoC for " + stats.username;
-	document.getElementById("hof_title").textContent = "HoF/Ho999 for " + stats.username;
+	document.getElementById("hoc_title").textContent = "HoC for " + username;
+	document.getElementById("hof_title").textContent = "HoF/Ho999 for " + username;
 }
 
 function getTables(html) {
@@ -153,8 +157,8 @@ function getHoC(hoc, title, name) {
 		let total = 0;
 		hocRows.map(r => total += parseInt(r.cells[2].textContent));
 		
-		if (stats.username.toLowerCase() == name.toLowerCase()) // only for original input, not aliases
-			stats.username = hocRows[row].cells[1].textContent; // change to proper capitalization
+		if (username.toLowerCase() == name.toLowerCase()) // only for original input, not aliases
+			username = hocRows[row].cells[1].textContent; // change to proper capitalization
 		
 		const stat = stats.hoc.findIndex(stat => stat.title == title);
 		if (stat > -1) {
@@ -182,7 +186,7 @@ function addThread(tables, title, name) {
 
 function loadThread(title, html, aliases) {
 	const tables = getTables(html);
-	const user = stats.username.toLowerCase();
+	const user = username.toLowerCase();
 	
 	if (user in aliases) { // check every alias
 		for (let name of aliases[user])
@@ -228,7 +232,7 @@ function mainHoF(rows, name) {
 function hallOfParticipation(html, aliases) {
 	const hof = getTables(html)[0];
 	const rows = Array.from(hof.rows);
-	const user = stats.username.toLowerCase();
+	const user = username.toLowerCase();
 	
 	if (user in aliases) {
 		for (let name of aliases[user])
@@ -257,9 +261,9 @@ function getAliases(csv) {
 }
 
 async function getStats() {
-	const username = document.getElementById("username").value.replace(/\/?u\/|\s/g, ""); // remove whitespace, /u/
+	username = document.getElementById("username").value.replace(/\/?u\/|\s/g, ""); // remove whitespace, /u/
 	if (username) {
-		stats = {hoc:[], hof:[], "username":username};
+		stats = {hoc:[], hof:[]};
 		updateTable();
 		document.getElementById("stats").style.display = "none";
 		document.getElementById("none").style.display = "none";
@@ -306,15 +310,19 @@ function switchType() {
 }
 
 function sortHoC(el) {
-	if (sortedHoC)
+	if (sortedHoC != undefined && sortedHoC === el) {
+		if (el.dataset.sortDirection == "up")
+			el.dataset.sortDirection = "down";
+		else
+			el.dataset.sortDirection = "up";
+	}
+	else if (sortedHoC != undefined && sortedHoC !== el)
 		delete sortedHoC.dataset.sorted;
+	if (el.dataset.sortDirection == undefined)
+		el.dataset.sortDirection = "up";
 	sortedHoC = el;
 	el.dataset.sorted = true;
 	
-	if (el.dataset.sortDirection == "up")
-		el.dataset.sortDirection = "down";
-	else
-		el.dataset.sortDirection = "up";
 	updateTable({hocType: el.dataset.col, hocDirection: el.dataset.sortDirection});
 }
 
