@@ -1,11 +1,12 @@
 "use strict";
 
 let stats, username;
+let totals = {};
 let sortedHoC, sortedHoF;
 
 function updateTable(sort = {}) {
 	// HoC
-	let hoc = document.getElementById("hoc");
+	const hoc = document.getElementById("hoc");
 	hoc.innerHTML = "";
 	let counts = 0;
 	stats.hoc.map(stat => counts += stat.counts);
@@ -24,13 +25,11 @@ function updateTable(sort = {}) {
 				stats.hoc.sort((a, b) => a.title > b.title ? 1 : -1);
 				break;
 			case "counts":
+			case "personal-percent":
 				stats.hoc.sort((a, b) => a.counts - b.counts);
 				break;
-			case "personal-percent":
-				stats.hoc.sort((a, b) => a.counts/counts - b.counts/counts);
-				break;
 			case "thread-percent":
-				stats.hoc.sort((a, b) => a.counts/a.total - b.counts/b.total);
+				stats.hoc.sort((a, b) => a.counts/totals[a.title] - b.counts/totals[b.title]);
 				break;
 			case "rank":
 				stats.hoc.sort((a, b) => a.rank - b.rank);
@@ -45,10 +44,10 @@ function updateTable(sort = {}) {
 	const rankStyle = `display: ${isRank ? "table-cell" : "none"}`;
 	const threadStyle = `display: ${isThread ? "table-cell" : "none"}`;
 	
-	for (let stat of stats.hoc) {
-		let row = document.createElement("tr");
+	for (const stat of stats.hoc) {
+		const row = document.createElement("tr");
 		const personalPercent = stat.counts / counts * 100;
-		const threadPercent = stat.counts / stat.total * 100;
+		const threadPercent = stat.counts / totals[stat.title] * 100;
 		threads += 1;
 		row.innerHTML = "<td>" + 
 			stat.title + "</td><td>" + 
@@ -88,16 +87,16 @@ function updateTable(sort = {}) {
 	if (sort.hofDirection == "down")
 		stats.hof.reverse();
 	
-	let hof = document.getElementById("hof");
+	const hof = document.getElementById("hof");
 	hof.innerHTML = "";
 	let gets = 0;
 	let assists = 0;
 	
-	for (let stat of stats.hof) {
-		let row = document.createElement("tr");
+	for (const stat of stats.hof) {
+		const row = document.createElement("tr");
 		gets += stat.gets;
 		assists += stat.assists;
-		let combined = stat.gets + stat.assists;
+		const combined = stat.gets + stat.assists;
 		row.innerHTML = "<td>" + 
 			stat.title + "</td><td>" + 
 			(stat.gets ? stat.gets : " ") + "</td><td>" + 
@@ -154,8 +153,6 @@ function getHoC(hoc, title, name) {
 	if (row > -1) { // HoC
 		const rank = parseInt(hocRows[row].cells[0].textContent);
 		const counts = parseInt(hocRows[row].cells[2].textContent);
-		let total = 0;
-		hocRows.map(r => total += parseInt(r.cells[2].textContent));
 		
 		if (username.toLowerCase() == name.toLowerCase()) // only for original input, not aliases
 			username = hocRows[row].cells[1].textContent; // change to proper capitalization
@@ -168,7 +165,7 @@ function getHoC(hoc, title, name) {
 			}
 		}
 		else
-			stats.hoc.push({"title":title, "rank":rank, "counts":counts, "total":total});
+			stats.hoc.push({"title":title, "rank":rank, "counts":counts});
 		
 		updateTable();
 	}
@@ -185,11 +182,16 @@ function addThread(tables, title, name) {
 }
 
 function loadThread(title, html, aliases) {
-	const tables = getTables(html);
 	const user = username.toLowerCase();
+	const dom = new DOMParser();
+	const wiki = dom.parseFromString(html, "text/html");
+	const tables = wiki.getElementsByTagName("tbody");
 	
+	if (title == "Decimal")
+		totals.Decimal = parseInt(wiki.querySelector("strong").textContent.replace(/[^\d]/g, ""))*1000; // get total counts in main
+
 	if (user in aliases) { // check every alias
-		for (let name of aliases[user])
+		for (const name of aliases[user])
 			addThread(tables, title, name);
 	}
 	else
@@ -198,11 +200,10 @@ function loadThread(title, html, aliases) {
 
 function loadSides(html, aliases) {
 	const tables = getTables(html);
-	for (let x = 0; x < tables.length; x++) { // there are several tables in the side thread stats page
-		const tbody = tables[x];
-		for (let y = 0; y < tbody.rows.length; y++) {
-			const row = tbody.rows[y];
+	for (const tbody of tables) { // there are several tables in the side thread stats page
+		for (const row of tbody.rows) {
 			const title = row.cells[0].textContent;
+			totals[title] = parseInt(row.cells[1].textContent); // total counts in each thread
 			const url = row.cells[0].childNodes[0].getAttribute("href");
 			fetch("https://old.reddit.com"+url+".json?raw_json=1", {mode:"cors", cache:"force-cache"}) // load stats page for each thread
 				.then(r => r.json())
@@ -235,7 +236,7 @@ function hallOfParticipation(html, aliases) {
 	const user = username.toLowerCase();
 	
 	if (user in aliases) {
-		for (let name of aliases[user])
+		for (const name of aliases[user])
 			mainHoF(rows, name, stats);
 	}
 	else
@@ -250,11 +251,10 @@ function notFound() {
 function getAliases(csv) {
 	let aliases = {};
 	const rows = csv.split("\n");
-	for (let y = 0; y < rows.length-1; y++) {
-		const names = rows[y].split(",");
-		for (let x = 0; x < names.length; x++) {
-			const name = names[x].toLowerCase();
-			aliases[name] = names;
+	for (const row of rows) {
+		const names = row.split(",");
+		for (const name of names) {
+			aliases[name.toLowerCase()] = names;
 		}
 	}
 	return aliases;
@@ -296,15 +296,15 @@ function clearText() {
 
 function switchType() {
 	if (document.getElementById("show-thread-percent").checked) {
-		for (let el of document.getElementsByClassName("thread-percent"))
+		for (const el of document.getElementsByClassName("thread-percent"))
 			el.style.display = "table-cell";
-		for (let el of document.getElementsByClassName("rank"))
+		for (const el of document.getElementsByClassName("rank"))
 			el.style.display = "none";
 	}
 	else {
-		for (let el of document.getElementsByClassName("rank"))
+		for (const el of document.getElementsByClassName("rank"))
 			el.style.display = "table-cell";
-		for (let el of document.getElementsByClassName("thread-percent"))
+		for (const el of document.getElementsByClassName("thread-percent"))
 			el.style.display = "none";
 	}
 }
