@@ -7,15 +7,15 @@ function fixURL(url) {
 
 function readComments(json) {
 	document.getElementById("more").style.display = "inline-block";
-	for (let i = 0; i < json.data.length; i++) {
+	for (comment of json.data) {
 		document.getElementById("comments").innerHTML += `
 <div class="comment">
 	<div class="head flex">
-		<span class="subreddit"><a href="https://www.reddit.com/r/${json.data[i].subreddit}">/r/${json.data[i].subreddit}</a></span>
-		<span class="author"><a href="https://www.reddit.com/user/${json.data[i].author}">/u/${json.data[i].author}</a></span>
-		<time datetime="${json.data[i].utc_datetime_str}Z">${json.data[i].utc_datetime_str}</time>
+		<span class="subreddit"><a href="https://www.reddit.com/r/${comment.subreddit}">/r/${comment.subreddit}</a></span>
+		<span class="author"><a href="https://www.reddit.com/user/${comment.author}">/u/${comment.author}</a></span>
+		<time datetime="${comment.utc_datetime_str}Z">${comment.utc_datetime_str}</time>
 	</div>
-	<a href="https://www.reddit.com${json.data[i].permalink}?context=7"><div class="body flex">${json.data[i].body}</div></a>
+	<a href="https://www.reddit.com/r/${comment.subreddit}/comments/${comment.link_id.slice(3)}/_/${comment.id}?context=7"><div class="body flex">${comment.body}</div></a>
 </div>`;
 	}
 }
