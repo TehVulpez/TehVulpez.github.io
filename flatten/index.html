@@ -8,7 +8,7 @@
 	<link rel="stylesheet" href="flatten.css">
 	<script src="flatten.js"></script>
 </head>
-<body>
+<body onload="parseFragment()">
 	<h1>Pushshift thread comments</h1>
 	<form id="input" onsubmit="loadNew(); return false" class="flex container col">
 		<div class="flex container">
@@ -31,11 +31,16 @@
 				<input type="text" id="search">
 			</div>
 		</div>
-		<button type="submit" form="input">Load thread</button>
+		<button type="submit" form="input" id="load">Load thread</button>
 	</form>
 	<div class="flex container col">
 		<div id="comments" class="flex container col"></div>
 		<button style="display:none" id="more" onclick="loadMore()">More comments</button>
+		<div class="center">
+			<span id="results"></span>
+			<a id="api">Generated API URL</a>
+		</div>
+		<span id="error"></span>
 	</div>
 </body>
 </html>
