@@ -117,7 +117,7 @@ function updateTable(sort = {}) {
 
 function getTables(html) {
 	const dom = new DOMParser();
-	return dom.parseFromString(html, "text/html").getElementsByTagName("tbody");
+	return dom.parseFromString(html, "text/html").getElementsByClassName("wiki md")[0].getElementsByTagName("tbody");
 }
 
 function sideHoF(hof, title, name) {
@@ -184,7 +184,7 @@ function addThread(tables, title, name) {
 function loadThread(title, html, aliases) {
 	const user = username.toLowerCase();
 	const dom = new DOMParser();
-	const wiki = dom.parseFromString(html, "text/html");
+	const wiki = dom.parseFromString(html, "text/html").getElementsByClassName("wiki md")[0];
 	const tables = wiki.getElementsByTagName("tbody");
 	
 	if (title == "Decimal")
@@ -205,9 +205,9 @@ function loadSides(html, aliases) {
 			const title = row.cells[0].textContent;
 			totals[title] = parseInt(row.cells[1].textContent); // total counts in each thread
 			const url = row.cells[0].childNodes[0].getAttribute("href");
-			fetch("https://old.reddit.com"+url+".json?raw_json=1", {mode:"cors", cache:"force-cache"}) // load stats page for each thread
-				.then(r => r.json())
-				.then(json => loadThread(title, json.data.content_html, aliases));
+			fetch("https://old.reddit.com"+url, {mode:"cors", cache:"force-cache"}) // load stats page for each thread
+				.then(r => r.text())
+				.then(text => loadThread(title, text, aliases));
 		}
 	}
 }
@@ -273,18 +273,18 @@ async function getStats() {
 			.then(getAliases);
 		
 		// Main thread HoC
-		fetch("https://old.reddit.com/r/counting/wiki/hoc.json?raw_json=1", {mode:"cors", cache:"force-cache"})
-			.then(r => r.json())
-			.then(json => loadThread("Decimal", json.data.content_html, aliases));
+		fetch("https://old.reddit.com/r/counting/wiki/hoc", {mode:"cors", cache:"force-cache"})
+			.then(r => r.text())
+			.then(text => loadThread("Decimal", text, aliases));
 		// Main thread HoF
-		fetch("https://old.reddit.com/r/counting/wiki/participation.json?raw_json=1", {mode:"cors", cache:"force-cache"})
-			.then(r => r.json())
-			.then(json => hallOfParticipation(json.data.content_html, aliases));
+		fetch("https://old.reddit.com/r/counting/wiki/participation", {mode:"cors", cache:"force-cache"})
+			.then(r => r.text())
+			.then(text => hallOfParticipation(text, aliases));
 		
 		// Sidethreads
-		fetch("https://old.reddit.com/r/counting/wiki/side_stats.json?raw_json=1", {mode:"cors", cache:"force-cache"})
-			.then(r => r.json())
-			.then(json => loadSides(json.data.content_html, aliases));
+		fetch("https://old.reddit.com/r/counting/wiki/side_stats", {mode:"cors", cache:"force-cache"})
+			.then(r => r.text())
+			.then(text => loadSides(text, aliases));
 		
 		window.setTimeout(notFound, 3000);
 	}
