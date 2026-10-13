@@ -1,5 +1,7 @@
 "use strict";
 
+location.href = "https://gist.github.com/TehVulpez/11e69e117aa51ddf54cd324fb77b80a3";
+
 let stats, username;
 let totals = {};
 let sortedHoC, sortedHoF;
